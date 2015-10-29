@@ -1,0 +1,41 @@
+﻿<Window x:Class="MoviePicker.UI.PreviewSelections"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="clr-namespace:MoviePicker.UI"
+        mc:Ignorable="d"
+        Title="MoviePicker" Height="560" Width="840"
+        x:Name="This"
+        Background="Black"
+        Foreground="White">
+    <Grid>
+        <ItemsControl Name="Generator" 
+                      ItemsSource="{Binding ElementName=This, Path=ViewModel.CurrentSelections}"
+                      Grid.Row="0" Grid.Column="0">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid LayoutUpdated="GridLayoutUpdated"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Viewbox>
+                        <ui:MovieTile Movie="{Binding}"
+                                      Command="{Binding ElementName=This, Path=ViewModel.PlayMovieCommand}"
+                                      CommandParameter="{Binding}"/>
+                    </Viewbox>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Button Grid.Row="0" Grid.Column="0" 
+                HorizontalAlignment="Right" VerticalAlignment="Bottom" 
+                Height="40" Width="40" 
+                Opacity="0.4"
+                Command="{Binding ElementName=This, Path=ViewModel.RefreshSelectionsCommand}">
+            <Image Source="186-reload-arrow-vector-icon-free.png"/>
+        </Button>
+    </Grid>
+    
+</Window>
