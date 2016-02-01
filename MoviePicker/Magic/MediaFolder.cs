@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -11,28 +12,19 @@ namespace MoviePicker.Magic
         {
             this.directory = dir;
 
-            dir.EnumerateDirectories()
+            var sw = new Stopwatch();
+            sw.Start();
+            this.movieDirs = dir.EnumerateDirectories()
                // ignore system and hidden folders
                .Where(d => d.Exists && (d.Attributes & (FileAttributes.System | FileAttributes.Hidden)) == 0)
-               // ignore directories that we don't have access to
-               .Select(d =>
-               {
-                   try
-                   {
-                       return new Movie(d);
-                   }
-                   catch (Exception se)
-                   {
-                       this.Exceptions.Add(d, se);
-                       return null;
-                   }
-               })
-               // null check required to weed out exceptions from the previous check
-               .Where(d => d != null)
-               .Split(d => d.IsValid, this.Movies, this.InvalidMovieDirs);
+               .Select(d => new MovieStub(d))
+               .ToList();
+            sw.Stop();
+            Debug.WriteLine("Loading MediaFolder took {0}ms", sw.ElapsedMilliseconds);
         }
 
         private readonly DirectoryInfo directory;
+        private readonly List<MovieStub> movieDirs;
 
         public List<Movie> Movies { get; } = new List<Movie>();
 
@@ -44,7 +36,36 @@ namespace MoviePicker.Magic
             get
             {
                 while (true)
-                    yield return this.Movies.GetRandom();
+                {
+                    var sw = new Stopwatch();
+                    sw.Start();
+                    var dir = this.movieDirs.GetRandom();
+                    Movie movie = null;
+                    try
+                    {
+                        movie = dir.Movie;
+                    }
+                    catch (Exception e)
+                    {
+                        this.Exceptions.Add(dir.Directory, e);
+                        this.movieDirs.Remove(dir);
+                    }
+
+                    if (movie == null)
+                        continue;
+
+                    if (!movie.IsValid)
+                    {
+                        this.InvalidMovieDirs.Add(movie);
+                        this.movieDirs.Remove(dir);
+                        continue;
+                    }
+
+                    sw.Stop();
+                    Debug.WriteLine("MediaFolder.RandomMovies.take(1) took {0}ms", sw.ElapsedMilliseconds);
+                    yield return movie;                    
+                }
+
             }
         }
     }

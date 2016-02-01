@@ -8,16 +8,11 @@
         <Style TargetType="Image">
             <Setter Property="Margin" Value="0"/>
         </Style>
-        <Style TargetType="TextBlock" x:Key="Header">
-            <Setter Property="FontSize" Value="18"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect Color="Black" BlurRadius="1"/>
-                </Setter.Value>
-            </Setter>
+        <Style TargetType="Border" x:Key="TitleBlock">
+            <Setter Property="Opacity" Value="0.95"/>
+            <Setter Property="Padding" Value="3"/>
+            <Setter Property="Background" Value="Black"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding ElementName=This, Path=Movie.HasPoster}" Value="False">
                     <Setter Property="Visibility" Value="Visible"/>
@@ -29,6 +24,19 @@
                     <Setter Property="Visibility" Value="Visible"/>
                 </DataTrigger>
             </Style.Triggers>
+        </Style>
+        <Style TargetType="TextBlock"  x:Key="Title">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="TextWrapping" Value="NoWrap"/>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="Summary">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Foreground" Value="DarkGray"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
         <Style TargetType="Button">
             <Style.Triggers>
@@ -47,13 +55,15 @@
             CommandParameter="{Binding ElementName=This, Path=CommandParameter}">
         <Grid Width="200" Height="275" x:Name="Grid">
             <Image Source="{Binding ElementName=This, Path=Movie.PosterFile.FullName}"
-                   MaxHeight="{Binding ElementName=PosterRow, Path=Height}" 
                    MaxWidth="{Binding ElementName=Grid, Path=Width}"/>
 
-            <TextBlock Grid.Row="0"
-                       Style="{StaticResource Header}"
-                       Text="{Binding ElementName=This, Path=Movie.Title}"/>
-
+            <Border Grid.Row="0"
+                    Style="{StaticResource TitleBlock}">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="{Binding ElementName=This, Path=Movie.Title}" Style="{StaticResource Title}"/>
+                    <TextBlock Text="{Binding ElementName=This, Path=Movie.Summary}" Style="{StaticResource Summary}"/>
+                </StackPanel>
+            </Border>
         </Grid>
     </Button>
 </UserControl>

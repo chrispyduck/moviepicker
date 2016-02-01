@@ -26,6 +26,9 @@ namespace MoviePicker.Magic
 
         public Movie(DirectoryInfo containingFolder)
         {
+            var sw = new Stopwatch();
+            sw.Start();
+
             this.directory = containingFolder;
             this.metadata = new Lazy<Metadata>(GetMetadata);
 
@@ -41,6 +44,9 @@ namespace MoviePicker.Magic
             this.ExecuteCommand = new RelayCommand(
                 _ => this.Execute(),
                 _ => this.IsValid);
+
+            sw.Stop();
+            Debug.WriteLine("Movie({0}).ctor took {1}ms", this, sw.ElapsedMilliseconds);
         }
 
         private readonly DirectoryInfo directory;
@@ -57,10 +63,12 @@ namespace MoviePicker.Magic
 
         public FileInfo PosterFile { get; }
         public bool HasPoster => this.PosterFile != null;
-
+        
         private readonly Lazy<Metadata> metadata;
         private Metadata GetMetadata()
         {
+            var sw = new Stopwatch();
+            sw.Start();
             var meta = this
                 .GetFiles("*.nfo")
                 .Select(f => Metadata.Deserialize(f))
@@ -81,13 +89,16 @@ namespace MoviePicker.Magic
             else
                 meta.Title = this.directory.Name;
 
+            sw.Stop();
+            Debug.WriteLine("GetMetadata({0}) took {1}ms", this, sw.ElapsedMilliseconds);
             return meta;
         }
 
         public Metadata Metadata => this.metadata.Value;
 
-        public string Title => this.Metadata.Title;
+        public string Title => string.Format("{0} ({1})", this.Metadata.Title, this.Metadata.Year);
         public bool IsValid => this.MediaFile != null;
+        public string Summary => this.Metadata.Summary;
 
         public ICommand ExecuteCommand { get; }
 
@@ -97,6 +108,11 @@ namespace MoviePicker.Magic
             processStartInfo.UseShellExecute = true;
             processStartInfo.FileName = this.MediaFile.FullName;
             Process.Start(processStartInfo);
+        }
+
+        public override string ToString()
+        {
+            return this.metadata.IsValueCreated ? this.Title : this.directory.Name;
         }
     }
 }

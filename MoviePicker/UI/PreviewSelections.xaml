@@ -8,7 +8,9 @@
         Title="MoviePicker" Height="560" Width="840"
         x:Name="This"
         Background="Black"
-        Foreground="White">
+        Foreground="White"
+        WindowState="Maximized"
+        WindowStyle="None">
     <Grid>
         <ItemsControl Name="Generator" 
                       ItemsSource="{Binding ElementName=This, Path=ViewModel.CurrentSelections}"
@@ -30,10 +32,20 @@
         </ItemsControl>
 
         <Button Grid.Row="0" Grid.Column="0" 
-                HorizontalAlignment="Right" VerticalAlignment="Bottom" 
+                HorizontalAlignment="Left" VerticalAlignment="Top" 
                 Height="40" Width="40" 
-                Opacity="0.4"
+                Opacity="0.1"
+                Background="DarkGray"
                 Command="{Binding ElementName=This, Path=ViewModel.RefreshSelectionsCommand}">
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
             <Image Source="186-reload-arrow-vector-icon-free.png"/>
         </Button>
     </Grid>
